@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  web:
+    build: . # Build the image from Dockerfile in the current directory
+    ports:
+      - "5001:5000" # Map host port 5001 to container port 5000 (Flask app)
+    environment:
+      - REDIS_HOST=redis # Tell Flask app the Redis hostname is 'redis'
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine" # Use official Redis image
+    ports:
+      - "6379:6379" # Optional: Map host port 6379 to container port 6379 for external debugging
+
+  prometheus:
+    image: prom/prometheus:latest # Use official Prometheus image
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Mount the config file
+    ports:
+      - "9090:9090" # Map host port 9090 to container port 9090 (Prometheus UI)
+    depends_on:
+      - web # Ensure web app starts so Prometheus can scrape it
+
+  grafana:
+    image: grafana/grafana-oss:latest # Use official Grafana image
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000 (Grafana UI)
+    depends_on:
+      - prometheus # Ensure Prometheus starts first
+    # Optional: Add volume for persistent Grafana data
+    # volumes:
+    #   - grafana-storage:/var/lib/grafana
+
+# Optional: Define named volume for Grafana persistence
+# volumes:
+#  grafana-storage:

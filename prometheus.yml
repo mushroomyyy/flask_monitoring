@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s # How frequently to scrape targets
+
+scrape_configs:
+  - job_name: 'flask-app'
+    # Use Docker Compose's internal DNS to find the 'web' service on port 5000
+    static_configs:
+      - targets: ['web:5000']
